@@ -1,2 +1,2 @@
-# api_workshop
+# api_workshops
 nicf api workshop
