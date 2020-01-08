@@ -8,13 +8,17 @@ const request = require('request');
 const keys = require('./keys.json');
 
 //Configure the PORT
-const PORT = parseInt(process.argv[2] || process.env.APP_PORT || 3000);
+console.log(process.argv[2]);
+console.log(process.env.APP_PORT);
+const PORT = parseInt(3000);
 
 const WEATHER_URL = 'https://api.openweathermap.org/data/2.5/weather';
 const MAP_URL='https://maps.googleapis.com/maps/api/staticmap'
 const NEWS_URL = 'https://newsapi.org/v2/top-headlines'
 
+// Function that returns a function that returns a promise
 const makeInvocation = function(url) {
+// var url declared in-scope when closure is created
     return ((params) => 
         new Promise((resolve, reject) => {
             request.get(url, ('qs' in params? params: { qs: params }),
@@ -56,11 +60,18 @@ app.get('/map', (req, resp) => {
     //Latitude and longitude from coord object above
     //API key is in keys.map
     const params = {
+        center: `${coord.lat},${coord.lon}`,
+        zoom: 15,
+        size: '300x300',
+        format: 'png',
+        marker: `size:mid|color:orange|label:A|${coord.lat},${coord.lon}`,
+        key: keys.map
     }
 
     getMap({ qs: params, encoding: null})
+    // Sent map image to user
         .then(result => {
-            resp.status(200);
+            resp.status(200); 
             resp.type('image/png')
             resp.send(result);
         })
@@ -81,6 +92,9 @@ app.get('/information', (req, resp) => {
     //Weather for city is in cityName variable
     //API key is in keys.weather
     const params = {
+        q : cityName,
+        units : "metric",
+        appid : keys.weather
     }
 
     getWeather(params)
@@ -93,7 +107,11 @@ app.get('/information', (req, resp) => {
             //The 2 character country code is found in countryCode variable
             //API key is in keys.news
             const params = {
+                country: countryCode,
+                category: 'technology',
+                apiKey: keys.news
             }
+
             return (Promise.all([ result, getNews(params) ]));
         })
         .then(result => {
@@ -141,6 +159,7 @@ app.get('/information', (req, resp) => {
 
 });
 
+// ??? For what ???
 app.get(/.*/, express.static(__dirname + '/public'));
 
 //Start the server
