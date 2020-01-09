@@ -76,6 +76,22 @@ f.prototype.findCitiesByName = function(city) {
 	);
 }
 
+f.prototype.findCitiesByState2 = function(state) {
+	return (
+		this.getDB()
+			.then(db => 
+				db.collection(this.config.collectionName)
+					.find({
+						state: {
+							$regex: `.*${state}.*`, 
+							$options: 'i' 
+						}
+					})
+					.toArray()
+			)
+	);
+}
+
 f.prototype.findAllStates = function() {
 	return (
 		this.getDB()
